@@ -1,18 +1,9 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import cart from './cart'
-Vue.use(Vuex)
-const createStore = () => {
-  return new Vuex.Store({
-    modules: {
-      cart,
-    },
-    state: {
-      //Data Central
-    },
-    mutations: {
-      //Data Change
-    },
-  })
+export const state = () => ({
+  user: null
+})
+
+export const mutations = {
+  SET_USER (state, user) {
+    state.user = user
+  }
 }
-export default createStore

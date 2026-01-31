@@ -1,134 +1,282 @@
 <template>
-  <div class="register-page">
-    <div class="card">
-      <h2>สมัครสมาชิก</h2>
+  <div class="register-container">
+    <div class="register-card">
+      <div class="brand-section">
+        <div class="logo-circle">
+          <i class="fas fa-tshirt"></i>
+        </div>
+        <h2>สมัครสมาชิก</h2>
+        <p>เริ่มต้นดูแลเสื้อผ้าตัวโปรดกับเรา</p>
+      </div>
 
-      <form @submit.prevent="register" enctype="multipart/form-data">
-        <input v-model="name" placeholder="ชื่อผู้ใช้" required />
-        <input v-model="email" type="email" placeholder="อีเมล" required />
-        <input v-model="password" type="password" placeholder="รหัสผ่าน" required />
+      <div class="form-body">
+        <div class="image-upload-wrapper">
+          <div class="preview-circle" :style="previewStyle">
+            <span v-if="!previewUrl">เลือกรูป</span>
+          </div>
+          <input type="file" id="profile" @change="onFileChange" hidden accept="image/*" />
+          <label for="profile" class="upload-btn">
+            <i class="fas fa-camera"></i> อัปโหลดรูปโปรไฟล์
+          </label>
+        </div>
 
-        <select v-model="role" required>
-          <option value="">เลือกประเภทผู้ใช้</option>
-          <option value="customer">ลูกค้า</option>
-          <option value="shop">ร้านซักอบรีด</option>
-        </select>
+        <div class="input-group">
+          <label><i class="fas fa-user"></i> ชื่อ-นามสกุล</label>
+          <input v-model="form.name" type="text" placeholder="สมชาย สะอาดดี" />
+        </div>
 
-        <input type="file" @change="handleFile" />
+        <div class="input-group">
+          <label><i class="fas fa-envelope"></i> อีเมล</label>
+          <input v-model="form.email" type="email" placeholder="example@laundry.com" />
+        </div>
 
-        <button type="submit">สมัครสมาชิก</button>
-      </form>
+        <div class="input-row">
+          <div class="input-group">
+            <label><i class="fas fa-lock"></i> รหัสผ่าน</label>
+            <input v-model="form.password" type="password" placeholder="••••••••" />
+          </div>
+         
+        </div>
 
-      <p v-if="error" class="error">{{ error }}</p>
-      <p class="login-link">
-        มีบัญชีแล้ว?
-        <nuxt-link to="/login">เข้าสู่ระบบ</nuxt-link>
-      </p>
+        <button @click="register" :disabled="isLoading" class="btn-register">
+          <span v-if="!isLoading">สร้างบัญชีผู้ใช้</span>
+          <span v-else class="loader"></span>
+        </button>
+
+        <p v-if="message" :class="['status-msg', isError ? 'error' : 'success']">
+          {{ message }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   data() {
     return {
-      name: '',
-      email: '',
-      password: '',
-      role: '',
-      image: null,
-      error: ''
+      form: {
+        name: "",
+        email: "",
+        password: "",
+        role: "customer",
+        profile_image: null
+      },
+      previewUrl: null,
+      message: "",
+      isError: false,
+      isLoading: false
+    };
+  },
+  computed: {
+    previewStyle() {
+      return this.previewUrl 
+        ? { backgroundImage: `url(${this.previewUrl})`, border: 'none' } 
+        : {};
     }
   },
   methods: {
-    handleFile(e) {
-      this.image = e.target.files[0]
+    onFileChange(e) {
+      const file = e.target.files[0];
+      if (file) {
+        this.form.profile_image = file;
+        this.previewUrl = URL.createObjectURL(file); // แสดงรูปทันทีที่เลือก
+      }
     },
     async register() {
-      this.error = ''
-      const fd = new FormData()
-      fd.append('name', this.name)
-      fd.append('email', this.email)
-      fd.append('password', this.password)
-      fd.append('role', this.role)
-      if (this.image) fd.append('image', this.image)
+      // Basic Validation
+      if (!this.form.name || !this.form.email || !this.form.password) {
+        this.isError = true;
+        this.message = "กรุณากรอกข้อมูลให้ครบถ้วน";
+        return;
+      }
 
-     try {
-  const res = await axios.post(
-    'http://localhost/api/register.php',
-    fd
-  )
-  console.log('RESPONSE =', res.data)
+      this.isLoading = true;
+      this.message = "";
 
-  if (res.data.status === 'success') {
-    this.$router.push('/login')
-  } else {
-    this.error = res.data.message
-  }
+      const fd = new FormData();
+      Object.keys(this.form).forEach(key => {
+        if (this.form[key]) fd.append(key, this.form[key]);
+      });
 
-} catch (err) {
-  console.log('ERROR =', err)
-  console.log('ERROR RESPONSE =', err.response)
-  this.error = 'สมัครไม่สำเร็จ'
+      try {
+       const res = await this.$axios.post("/auth/register.php", fd);
+
+this.isError = !res.data.status;
+this.message = res.data.message;
+
+if (res.data.status) {
+  setTimeout(() => {
+    this.$router.push("/login");
+  }, 1500);
 }
-
+      } catch (err) {
+        this.isError = true;
+        this.message = "การเชื่อมต่อล้มเหลว กรุณาลองใหม่";
+      } finally {
+        this.isLoading = false;
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
-.register-page {
+/* Laundry Theme Colors: White (#FFFFFF), Soft Blue (#E3F2FD), Deep Blue (#1976D2) */
+.register-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #3498db, #2ecc71);
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-family: 'Segoe UI', Tahoma, sans-serif;
+  justify-content: center;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 20px;
+  font-family: 'Kanit', sans-serif;
 }
 
-.card {
+.register-card {
   background: white;
-  width: 360px;
-  padding: 40px;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-input, select, button {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  max-width: 450px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  overflow: hidden;
+  animation: slideUp 0.5s ease-out;
 }
 
-button {
-  background: #3498db;
+.brand-section {
+  background-color: #1976d2;
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+
+.logo-circle {
+  width: 60px;
+  height: 60px;
+  background: white;
+  color: #1976d2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  font-size: 24px;
+}
+
+.form-body {
+  padding: 30px;
+}
+
+/* Image Upload Styling */
+.image-upload-wrapper {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.preview-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px dashed #bbdefb;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  color: #90caf9;
+}
+
+.upload-btn {
+  font-size: 0.85rem;
+  color: #1976d2;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Form Controls */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.input-group input, .input-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.btn-register {
+  width: 100%;
+  padding: 14px;
+  background: #1976d2;
   color: white;
   border: none;
-  font-weight: bold;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
 }
 
-button:hover {
-  background: #2980b9;
+.btn-register:hover:not(:disabled) {
+  background: #1565c0;
+  transform: translateY(-2px);
 }
 
-.error {
-  color: red;
-  text-align: center;
+.btn-register:disabled {
+  background: #90caf9;
+  cursor: not-allowed;
 }
 
-.login-link {
+/* Loading Spinner */
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #FFF;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: rotation 1s linear infinite;
+}
+
+.status-msg {
   text-align: center;
   margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.status-msg.error { color: #d32f2f; }
+.status-msg.success { color: #2e7d32; }
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
