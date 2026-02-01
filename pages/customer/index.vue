@@ -78,7 +78,41 @@
         </main>
 
         <div class="py-5"></div>
+        <footer class="modern-footer">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="footer-brand">
+                            <span class="logo-icon">🧺</span>
+                            <span class="logo-text">LAUNDRY<strong>HUB</strong></span>
+                        </div>
+                        <p class="footer-desc">บริการซักอบรีดคุณภาพ รับ-ส่งถึงที่ สะดวก รวดเร็ว และใส่ใจทุกเนื้อผ้าของคุณ</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="footer-title">ข้อมูลติดต่อ</h6>
+                        <ul class="footer-links">
+                            <li><i class="fas fa-store"></i> ชื่อร้าน : ร้านซักอบรีดออนไลน์</li>
+                            <li><i class="fas fa-phone-alt"></i> เบอร์โทร : <a href="tel:0643076672">0643076672</a></li>
+                            <li><i class="fas fa-envelope"></i> Email : <a href="mailto:luandry@gmail.com">luandry@gmail.com</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <h6 class="footer-title">ติดตามเรา</h6>
+                        <div class="social-icons">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-line"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="footer-divider">
+                <div class="footer-bottom">
+                    <p>&copy; 2026 <strong>laundry</strong>. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
     </div>
+    
 </template>
 
 <script>
@@ -140,7 +174,107 @@ export default {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+/* Modern Footer Style */
+.modern-footer {
+    background: #ffffff;
+    padding: 60px 0 20px 0;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 50px;
+    color: #555;
+}
 
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.footer-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #888;
+}
+
+.footer-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-links a {
+    color: #0066ff;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+.social-icons a {
+    width: 35px;
+    height: 35px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #666;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.social-icons a:hover {
+    background: #0066ff;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.footer-divider {
+    margin: 40px 0 20px 0;
+    border-color: #eee;
+}
+
+.footer-bottom {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.footer-bottom strong {
+    color: #888;
+}
+
+@media (max-width: 768px) {
+    .social-icons {
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+    .modern-footer {
+        padding: 40px 0 20px 0;
+    }
+}
 .customer-dashboard {
     background: #fdfdfd;
     min-height: 100vh;
